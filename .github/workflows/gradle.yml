@@ -41,7 +41,5 @@ jobs:
       run: chmod +x ./gradlew
 
     - name: Test with Gradle Wrapper
-      run: |
-        cd candycrush
-        ./gradlew test
+      run: ./gradlew test
     
