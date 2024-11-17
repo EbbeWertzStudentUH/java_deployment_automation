@@ -1,0 +1,56 @@
+name: Build and Release Installers
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build-and-package:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Prepare toolset for Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fakeroot dpkg rpm
+
+      # Install WiX for Windows
+      - name: Prepare toolset for Windows (install)
+        if: matrix.os == 'windows-latest'
+        run: |
+          choco install wix --version=3.14 -y
+
+      - name: Prepare toolset for Windows (add PATH)
+        if: matrix.os == 'windows-latest'
+        run: echo "C:\\ProgramData\\chocolatey\\bin" >> $GITHUB_PATH
+
+      # Build the application
+      - name: Build project
+        run: ./gradlew clean build
+
+      # Package the application
+      - name: Package installer
+        run: ./gradlew jpackage
+
+      # Collect installers for artifacts
+      - name: Archive installers
+        run: |
+          mkdir -p build/installers
+          mv ${GITHUB_WORKSPACE}/build/distributions/* build/installers/
+
+      - name: Upload installers to release
+        uses: actions/upload-artifact@v3
+        with:
+          name: installers-${{ matrix.os }}
+          path: build/installers/
