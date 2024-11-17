@@ -35,7 +35,9 @@ jobs:
         run: ./gradlew jpackage
 
       - name: Debug Build Directory
-        run: dir build /s
+        run: |
+          dir build
+          dir build/installers
 
       - name: Upload installer to release
         uses: svenstaro/upload-release-action@v2
