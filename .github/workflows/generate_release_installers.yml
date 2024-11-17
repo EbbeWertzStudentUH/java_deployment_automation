@@ -34,13 +34,8 @@ jobs:
       - name: Package Windows Installer
         run: ./gradlew jpackage
 
-      - name: Archive Installer
-        run: |
-          mkdir -p build/installers
-          mv ${GITHUB_WORKSPACE}/build/distributions/* build/installers/
-
-      - name: Upload Installer as Artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload installers to release
+        uses: actions/upload-artifact@v4
         with:
           name: windows-installer
           path: build/installers/
