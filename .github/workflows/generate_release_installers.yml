@@ -5,52 +5,42 @@ on:
     types: [created]
 
 jobs:
-  build-and-package:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+  build-and-package-windows:
+    runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
           java-version: '21'
+          distribution: 'temurin'
+          
+      - name: Build with Gradle Wrapper
+        run: ./gradlew build
 
-      - name: Prepare toolset for Linux
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y fakeroot dpkg rpm
+      - name: Verify Chocolatey
+        run: choco --version
 
-      # Install WiX for Windows
-      - name: Prepare toolset for Windows (install)
-        if: matrix.os == 'windows-latest'
-        run: |
-          choco install wix --version=3.14 -y
+      - name: Install WiX Toolset
+        run: choco install wix --version=3.11.2.4516 -y
 
-      - name: Prepare toolset for Windows (add PATH)
-        if: matrix.os == 'windows-latest'
-        run: echo "C:\\ProgramData\\chocolatey\\bin" >> $GITHUB_PATH
+      - name: Add WiX to PATH
+        run: echo "C:\\Program Files (x86)\\WiX Toolset v3.11\\bin" >> $GITHUB_PATH
 
-      # Build the application
       - name: Build project
         run: ./gradlew clean build
 
-      # Package the application
-      - name: Package installer
+      - name: Package Windows Installer
         run: ./gradlew jpackage
 
-      # Collect installers for artifacts
-      - name: Archive installers
+      - name: Archive Installer
         run: |
           mkdir -p build/installers
           mv ${GITHUB_WORKSPACE}/build/distributions/* build/installers/
 
-      - name: Upload installers to release
+      - name: Upload Installer as Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: installers-${{ matrix.os }}
+          name: windows-installer
           path: build/installers/
