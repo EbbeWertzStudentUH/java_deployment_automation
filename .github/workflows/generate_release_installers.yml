@@ -23,7 +23,7 @@ jobs:
         run: choco --version
 
       - name: Install WiX Toolset
-        run: choco install wix --version=3.14.1 -y
+        run: choco install wixtoolset --version=3.14.1 -y
 
       - name: Add WiX to PATH
         run: echo "C:\\Program Files (x86)\\WiX Toolset v3.11\\bin" >> $GITHUB_PATH
