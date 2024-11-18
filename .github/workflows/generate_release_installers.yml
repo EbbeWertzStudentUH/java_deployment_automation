@@ -11,8 +11,6 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-      - name: install wget
-        run: choco install wget
       - name: Install InstallBuilder
         run: |
           wget https://installbuilder.com/installbuilder.tar.gz
