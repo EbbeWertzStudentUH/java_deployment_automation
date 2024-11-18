@@ -14,7 +14,7 @@ jobs:
       - name: Install InstallBuilder
         run: |
           wget https://releases.installbuilder.com/installbuilder/installbuilder-24.10.0-linux-x64-installer.run
-          tar -xvzf installbuilder.tar.gz
+          tar -xvzf installbuilder-24.10.0-linux-x64-installer.run
           sudo mv installbuilder /opt/installbuilder
 
       - name: Build Full Installer
