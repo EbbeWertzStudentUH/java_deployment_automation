@@ -15,7 +15,7 @@ jobs:
         run: choco install wget
       - name: Install InstallBuilder
         run: |
-          winget https://installbuilder.com/installbuilder.tar.gz
+          wget https://installbuilder.com/installbuilder.tar.gz
           tar -xvzf installbuilder.tar.gz
           sudo mv installbuilder /opt/installbuilder
 
