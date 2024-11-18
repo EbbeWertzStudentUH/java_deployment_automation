@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Install InstallBuilder
         run: |
-          wget https://installbuilder.com/installbuilder.tar.gz
+          winget https://installbuilder.com/installbuilder.tar.gz
           tar -xvzf installbuilder.tar.gz
           sudo mv installbuilder /opt/installbuilder
 
