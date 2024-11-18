@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'application'
     id 'org.javamodularity.moduleplugin' version '1.8.12'
-    id 'org.openjfx.javafxplugin' version '0.0.13'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
     id 'org.beryx.jlink' version '2.25.0'
 }
 
@@ -30,7 +30,7 @@ application {
 }
 
 javafx {
-    version = '17.0.6'
+    version = '23.0.1'
     modules = ['javafx.controls', 'javafx.fxml']
 }
 
@@ -45,16 +45,17 @@ test {
 }
 
 jlink {
-    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    options = ['--strip-debug', '--no-header-files', '--no-man-pages']
     launcher {
-        name = 'app'
+        name = 'a_deployment_test'
     }
-    jpackage {
-        appVersion = project.version
-        vendor = 'test'
-        outputDir = 'installers'
-        installerType = 'exe'
-    }
+//    jpackage {
+//        appVersion = project.version
+//        outputDir = 'installers'
+//        installerType = 'msi'
+//        installerName = "java_deployment_automation-windows-installer"
+//        resourceDir = file("${projectDir}/src/main/resources")
+//    }
 }
 
 jlinkZip {

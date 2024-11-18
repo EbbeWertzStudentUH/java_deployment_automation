@@ -1,0 +1,34 @@
+<project>
+    <info>
+        <name>aDeploymentTest</name>
+        <version>${VERSION}</version> <!-- Injected during the build process -->
+    </info>
+
+    <installation>
+        <installationDir>/opt/aDeploymentTest</installationDir> <!-- Default install path -->
+        <createShortcut>
+            <menu>
+                <title>aDeploymentTest</title>
+            </menu>
+            <desktop>
+                <title>aDeploymentTest</title>
+            </desktop>
+        </createShortcut>
+    </installation>
+
+    <files>
+        <file>
+            <source>build/image/bin/a_deployment_test</source> <!-- Your main executable -->
+            <target>build/image/bin/a_deployment_test</target>
+        </file>
+        <!-- Add other resources as necessary -->
+    </files>
+
+    <actions>
+        <!-- Action to register file types, if needed -->
+<!--        <registerFileExtension>-->
+<!--            <extension>.yourapp</extension>-->
+<!--            <command>"${installationDirectory}/bin/yourapp.exe" "%1"</command>-->
+<!--        </registerFileExtension>-->
+    </actions>
+</project>

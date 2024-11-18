@@ -1,47 +1,106 @@
 name: Build and Release Installers
 
 on:
-  release:
-    types: [created]
+  push:
+    branches: [ "main" ]
 
 jobs:
-  build-and-package-windows:
+  build-and-package:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-          
-      - name: Build with Gradle Wrapper
-        run: ./gradlew build
-
-      - name: Verify Chocolatey
-        run: choco --version
-
-      - name: Install WiX Toolset
-        run: choco install wixtoolset --version=3.14.1 -y
-
-      - name: Add WiX to PATH
-        run: echo "C:\\Program Files (x86)\\WiX Toolset v3.11\\bin" >> $GITHUB_PATH
-
-      - name: Build project
-        run: ./gradlew clean build
-
-      - name: Package Windows Installer
-        run: ./gradlew jpackage
-
-      - name: Debug Build Directory
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Install InstallBuilder
         run: |
-          dir build
-          dir build/installers
+          wget https://installbuilder.com/installbuilder.tar.gz
+          tar -xvzf installbuilder.tar.gz
+          sudo mv installbuilder /opt/installbuilder
 
-      - name: Upload installer to release
-        uses: svenstaro/upload-release-action@v2
+      - name: Build Full Installer
+        run: |
+          /opt/installbuilder/bin/installbuilder --project project-full.xml --output-dir output/
+
+      - name: Build Incremental Updater
+        run: |
+          /opt/installbuilder/bin/installbuilder --project project-updater.xml --output-dir output/
+
+      - name: Generate Update Metadata
+        run: |
+          echo '{' > update-info.json
+          echo '  "latestVersion": "${{ github.ref_name }}",' >> update-info.json
+          echo '  "downloadURL": "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/installer-full.exe",' >> update-info.json
+          echo '  "updaterURL": "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/updater.exe",' >> update-info.json
+          echo '  "releaseNotes": "See the release notes on GitHub.",' >> update-info.json
+          echo '  "minUpdaterVersion": "1.0.0"' >> update-info.json
+          echo '}' >> update-info.json
+      - name: Upload installers to artifact
+        uses: actions/upload-artifact@v4
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref_name }}
-          file: build/installers/app-1.0.exe
+          name: installers
+          path: output/*
+      - name: Upload meta to artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: meta
+          path: update-info.json
+#              # Upload Artifacts to GitHub Releases
+#              - name: Upload Artifacts to Release
+#                uses: ncipollo/release-action@v1
+#                with:
+#                  artifacts: |
+#                    output/installer-full.exe
+#                    output/updater.exe
+#                    update-info.json
+#                  token: ${{ secrets.GITHUB_TOKEN }}
+#                  tag: ${{ github.ref_name }}
+
+
+
+
+#
+#on:
+#  release:
+#    types: [created]
+#
+#jobs:
+#  build-and-package-windows:
+#    runs-on: windows-latest
+#
+#    steps:
+#      - uses: actions/checkout@v4
+#      - name: Set up JDK 21
+#        uses: actions/setup-java@v4
+#        with:
+#          java-version: '21'
+#          distribution: 'temurin'
+#
+#      - name: Build with Gradle Wrapper
+#        run: ./gradlew build
+#
+#      - name: Verify Chocolatey
+#        run: choco --version
+#
+#      - name: Install WiX Toolset
+#        run: choco install wixtoolset --version=3.14.1 -y
+#
+#      - name: Add WiX to PATH
+#        run: echo "C:\\Program Files (x86)\\WiX Toolset v3.11\\bin" >> $GITHUB_PATH
+#
+#      - name: Build project
+#        run: ./gradlew clean build
+#
+#      - name: Package Windows Installer
+#        run: ./gradlew jpackage
+#
+#      - name: Debug Build Directory
+#        run: |
+#          dir build
+#          dir build/installers
+#
+#      - name: Upload installer to release
+#        uses: svenstaro/upload-release-action@v2
+#        with:
+#          repo_token: ${{ secrets.GITHUB_TOKEN }}
+#          tag: ${{ github.ref_name }}
+#          file: build/installers/app-1.0.exe
